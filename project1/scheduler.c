@@ -8,6 +8,8 @@
 
 #include "scheduler.h"
 
+#define DEBUG_DONE
+
 int cmp_FIFO_SJF(const void* a, const void* b){
 	int tmp = ((Process *)a)->ready_time - ((Process *)b)->ready_time;
 	if(tmp == 0)
@@ -103,8 +105,10 @@ int decide_proc(int policy, int N, Process* procs, int last_id, int* rr){
 
 
 int scheduling(int policy, int N, Process *procs){
+#ifdef DEBUG
 	printf("Start Scheduling...\n");
 	fflush(stdout);
+#endif
 
 	qsort(procs, N, sizeof(Process), cmp_FIFO_SJF);
 
@@ -120,8 +124,10 @@ int scheduling(int policy, int N, Process *procs){
 		if(last_id != -1 && procs[last_id].exec_time <= 0){
 			waitpid(procs[last_id].pid, NULL, 0);	//kill?
 			procs[last_id].pid = -1;
+#ifdef DEBUG_DONE
 			printf("Process %s is done before %d\n", procs[last_id].name, curr_time);
 			fflush(stdout);
+#endif
 			done_count += 1;
 			/* End of scheduling */
 			if(done_count == N)
@@ -132,16 +138,21 @@ int scheduling(int policy, int N, Process *procs){
 		for(int i = 0; i < N; i++)
 			if(procs[i].ready_time == curr_time){
 				procs[i].pid = exec_proc(procs[i].exec_time);
+				printf("%s %d\n", procs[i].name, procs[i].pid);
+#ifdef DEBUG
 				printf("Process %s is ready at %d\n", procs[i].name, curr_time);
 				fflush(stdout);
+#endif
 				assert(assign_cpu(procs[i].pid, C_CPU) != -1);
 				block_down(procs[i].pid);
 			}
-	//printf("%d\n", rr);
+	
 	/* Determine who's next */
 		int curr_id = decide_proc(policy, N, procs, last_id, &rr);
+#ifdef DEBUG
 		printf("time = %d, curr_proc = %s\n", curr_time, procs[curr_id].name);
 		fflush(stdout);
+#endif
 		/* Context Switch */
 		if(curr_id != last_id){
 			if(curr_id != -1 && procs[curr_id].pid != -1)

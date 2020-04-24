@@ -3,7 +3,6 @@
 #include <stdlib.h>
 #include <assert.h>
 
-
 #include "scheduler.h"
 
 int match_policy(char* policy){
