@@ -36,6 +36,6 @@ int main(){
 		procs[i].pid = -1;
 	}
 
-	int k = scheduling(policy, N, procs);
+	scheduling(policy, N, procs);
 
 }
