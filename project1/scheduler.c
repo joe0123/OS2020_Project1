@@ -146,7 +146,7 @@ int scheduling(int policy, int N, Process *procs){
 		fflush(stdout);
 #endif
 	/* Context Switch */
-		if(curr_id != last_id){
+		if(curr_id != -1 && curr_id != last_id){
 			if(last_id != -1 && procs[last_id].pid != -1)
 				assert(block_down(procs[last_id].pid) >= 0);
 			if(curr_id != -1 && procs[curr_id].pid != -1)

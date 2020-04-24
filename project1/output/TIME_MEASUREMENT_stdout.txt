@@ -1,0 +1,40 @@
+P0 1675
+curr_time = 0
+0 -1 -1 -1 -1 -1 -1 -1 -1 -1 
+Process P0 is done at 500
+P1 1676
+curr_time = 1000
+-1 0 -1 -1 -1 -1 -1 -1 -1 -1 
+Process P1 is done at 1500
+P2 1677
+curr_time = 2000
+-1 -1 0 -1 -1 -1 -1 -1 -1 -1 
+Process P2 is done at 2500
+P3 1678
+curr_time = 3000
+-1 -1 -1 0 -1 -1 -1 -1 -1 -1 
+Process P3 is done at 3500
+P4 1679
+curr_time = 4000
+-1 -1 -1 -1 0 -1 -1 -1 -1 -1 
+Process P4 is done at 4500
+P5 1680
+curr_time = 5000
+-1 -1 -1 -1 -1 0 -1 -1 -1 -1 
+Process P5 is done at 5500
+P6 1681
+curr_time = 6000
+-1 -1 -1 -1 -1 -1 0 -1 -1 -1 
+Process P6 is done at 6500
+P7 1682
+curr_time = 7000
+-1 -1 -1 -1 -1 -1 -1 0 -1 -1 
+Process P7 is done at 7500
+P8 1683
+curr_time = 8000
+-1 -1 -1 -1 -1 -1 -1 -1 0 -1 
+Process P8 is done at 8500
+P9 1684
+curr_time = 9000
+-1 -1 -1 -1 -1 -1 -1 -1 -1 0 
+Process P9 is done at 9500
