@@ -15,6 +15,6 @@
 #define UNIT_TIME volatile unsigned long i; for(i=0;i<1000000UL;i++)
 #endif
 
-#define TQ 500
+#define TQ 2
 
 int scheduling(int policy, int N, Process *processes);
