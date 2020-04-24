@@ -46,27 +46,27 @@ static inline int block_down(int pid){
 static inline int decide_proc(int policy, int N, Process* procs, int last_id, int* rr){
 	int curr_id = last_id;	// default: last runner is the next runner
 
-	// (curr_id == -1 || (curr_id != -1 && procs[curr_id].pid == -1)) means our curr_id is now absent.
+	// (curr_id == -1 || (curr_id != -1 && procs[curr_id].state == 0)) means our curr_id is now absent.
 	switch(policy){
 		case FIFO:
-			if(curr_id == -1 || (curr_id != -1 && procs[curr_id].pid == -1)){
+			if(curr_id == -1 || (curr_id != -1 && procs[curr_id].state == 0)){
 				int i = curr_id + 1;
 				curr_id = -1;
 				for(; i < N; i++)
 					// Find the nearest one behind curr_id thanks to qsort
-					if(procs[i].pid != -1){
+					if(procs[i].state == 1){
 						curr_id = i;
 						break;
 					}
 			}
 			break;
 		case RR:
-			if(curr_id == -1 || (curr_id != -1 && procs[curr_id].pid == -1) || *rr == 0){
+			if(curr_id == -1 || (curr_id != -1 && procs[curr_id].state == 0) || *rr == 0){
 				int start_id = (curr_id + 1) % N;
 				curr_id = -1;
 				for(int i = 0; i < N; i++){
 					// Find the nearest one in circular array from curr_id 
-					if(procs[(start_id + i) % N].pid != -1){
+					if(procs[(start_id + i) % N].state == 1){
 						curr_id = (start_id + i) % N;
 						break;
 					}
@@ -75,10 +75,10 @@ static inline int decide_proc(int policy, int N, Process* procs, int last_id, in
 			}
 			break;
 		case SJF:
-			if(curr_id == -1 || (curr_id != -1 && procs[curr_id].pid == -1)){
+			if(curr_id == -1 || (curr_id != -1 && procs[curr_id].state == 0)){
 				curr_id = -1;
 				for(int i = 0; i < N; i++){
-					if(procs[i].pid == -1)
+					if(procs[i].state == 0)
 						continue;
 					// Find one with shortest exec_time in the whole array
 					if(curr_id == -1 || (curr_id != -1 && procs[i].exec_time < procs[curr_id].exec_time))
@@ -87,11 +87,11 @@ static inline int decide_proc(int policy, int N, Process* procs, int last_id, in
 			}
 			break;
 		case PSJF:
-			if(curr_id == -1 || (curr_id != -1 && procs[curr_id].pid == -1))
+			if(curr_id == -1 || (curr_id != -1 && procs[curr_id].state == 0))
 				curr_id = -1;
 			// Find one with shortest exec_time in the whole array regardless of curr_id
 			for(int i = 0; i < N; i++){
-				if(procs[i].pid == -1)
+				if(procs[i].state == 0)
 					continue;
 				if(curr_id == -1 || (curr_id != -1 && procs[i].exec_time < procs[curr_id].exec_time))
 					curr_id = i;
@@ -111,6 +111,19 @@ int scheduling(int policy, int N, Process *procs){
 	assert(assign_cpu(getpid(), P_CPU) != -1);
 	assert(wake_up(getpid()) >= 0);
 
+/* Add processes and block them */
+	for(int i = 0; i < N; i++){
+		//Execute Process
+			procs[i].pid = exec_proc(procs[i].exec_time);
+			assert(procs[i].pid != -1);
+		// Block the process to wait for scheduling
+			assert(block_down(procs[i].pid) >= 0);
+		// Assign process to CPU different from scheduler
+			assert(assign_cpu(procs[i].pid, C_CPU) != -1);
+			printf("%s %d\n", procs[i].name, procs[i].pid);
+			fflush(stdout);
+	}
+
 /* Start */
 	int last_id = -1;
 	// last_id == -1 means there is no runner in the last round
@@ -120,17 +133,8 @@ int scheduling(int policy, int N, Process *procs){
 	while(1){
 	/* Fork the process who's ready */
 		for(int i = 0; i < N; i++)
-			if(procs[i].ready_time == curr_time){
-			//Execute Process
-				procs[i].pid = exec_proc(procs[i].exec_time);
-				assert(procs[i].pid != -1);
-			// Block the process to wait for scheduling
-				assert(block_down(procs[i].pid) >= 0);
-			// Assign process to CPU different from scheduler
-				assert(assign_cpu(procs[i].pid, C_CPU) != -1);
-				printf("%s %d\n", procs[i].name, procs[i].pid);
-				fflush(stdout);
-			}
+			if(procs[i].ready_time == curr_time)
+				procs[i].state = 1;
 	
 	/* Determine who's next */
 		int curr_id = decide_proc(policy, N, procs, last_id, &rr);
@@ -141,14 +145,14 @@ int scheduling(int policy, int N, Process *procs){
 #endif
 	/* Context Switch */
 		if(curr_id != -1 && curr_id != last_id){
-			if(last_id != -1 && procs[last_id].pid != -1)
+			if(last_id != -1 && procs[last_id].state == 1)
 				assert(block_down(procs[last_id].pid) >= 0);
-			if(curr_id != -1 && procs[curr_id].pid != -1)
+			if(curr_id != -1 && procs[curr_id].state == 1)
 				assert(wake_up(procs[curr_id].pid) >= 0);
 #ifdef DEBUG_PRIORITY
 			printf("curr_time = %d\n", curr_time);
 			for(int i = 0; i < N; i++)
-				if(procs[i].pid != -1)
+				if(procs[i].state == 1)
 					printf("%d ", sched_getscheduler(procs[i].pid));
 				else
 					printf("-1 ");
@@ -169,6 +173,7 @@ int scheduling(int policy, int N, Process *procs){
 		if(curr_id != -1 && procs[curr_id].exec_time <= 0){
 			waitpid(procs[curr_id].pid, NULL, 0);
 			procs[curr_id].pid = -1;
+			procs[curr_id].state = 0;
 #ifdef DEBUG_DONE
 			printf("Process %s is done at %d\n", procs[curr_id].name, curr_time);
 			fflush(stdout);
