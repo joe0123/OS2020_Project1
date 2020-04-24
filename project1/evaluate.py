@@ -5,7 +5,7 @@ with open(os.path.join(sys.argv[1], "output/TIME_MEASUREMENT_dmesg.txt"), 'r') a
     time_sum = 0
     for i in f.readlines():
         tmp = i.strip().split()
-        time_sum += float(tmp[5]) - float(tmp[4])
+        time_sum += float(tmp[4]) - float(tmp[3])
 
 time_unit = time_sum / 5000
 print(time_unit)

@@ -8,8 +8,6 @@
 
 #include "scheduler.h"
 
-#define DEBUG_DONE
-#define DEBUG_PRIORITY
 
 int cmp_FIFO_SJF(const void* a, const void* b){
 	int tmp = ((Process *)a)->ready_time - ((Process *)b)->ready_time;
@@ -18,7 +16,7 @@ int cmp_FIFO_SJF(const void* a, const void* b){
 	return tmp;
 }
 
-int assign_cpu(int pid, int core){
+static inline int assign_cpu(int pid, int core){
 	if (core > sizeof(cpu_set_t))
 		return -1;
 
@@ -32,20 +30,20 @@ int assign_cpu(int pid, int core){
 	return 0;
 }
 
-int wake_up(int pid){
+static inline int wake_up(int pid){
     struct sched_param param;
     param.sched_priority = 0;
     return sched_setscheduler(pid, SCHED_OTHER, &param);
 }
 
-int block_down(int pid){
+static inline int block_down(int pid){
     struct sched_param param;
     param.sched_priority = 0;
     return sched_setscheduler(pid, SCHED_IDLE, &param);	/* SCHED_IDLE: with very low priority*/
 }
 
 
-int decide_proc(int policy, int N, Process* procs, int last_id, int* rr){
+static inline int decide_proc(int policy, int N, Process* procs, int last_id, int* rr){
 	int curr_id = last_id;	// default: last runner is the next runner
 
 	// (curr_id == -1 || (curr_id != -1 && procs[curr_id].pid == -1)) means our curr_id is now absent.
@@ -126,16 +124,12 @@ int scheduling(int policy, int N, Process *procs){
 			//Execute Process
 				procs[i].pid = exec_proc(procs[i].exec_time);
 				assert(procs[i].pid != -1);
-				printf("%s %d\n", procs[i].name, procs[i].pid);
-				fflush(stdout);
-#ifdef DEBUG_READY
-				printf("Process %s is ready at %d\n", procs[i].name, curr_time);
-				fflush(stdout);
-#endif
-			// Assign process to CPU different from scheduler
-				assert(assign_cpu(procs[i].pid, C_CPU) != -1);
 			// Block the process to wait for scheduling
 				assert(block_down(procs[i].pid) >= 0);
+			// Assign process to CPU different from scheduler
+				assert(assign_cpu(procs[i].pid, C_CPU) != -1);
+				printf("%s %d\n", procs[i].name, procs[i].pid);
+				fflush(stdout);
 			}
 	
 	/* Determine who's next */
@@ -173,7 +167,7 @@ int scheduling(int policy, int N, Process *procs){
 
 	/* Wait for done process if exists */
 		if(curr_id != -1 && procs[curr_id].exec_time <= 0){
-			waitpid(procs[curr_id].pid, NULL, 0);	//kill?
+			waitpid(procs[curr_id].pid, NULL, 0);
 			procs[curr_id].pid = -1;
 #ifdef DEBUG_DONE
 			printf("Process %s is done at %d\n", procs[curr_id].name, curr_time);
