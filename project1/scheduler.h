@@ -1,3 +1,5 @@
+#include "process.h"
+
 #define FIFO	0
 #define RR	1
 #define SJF	2
@@ -15,5 +17,4 @@
 
 #define TQ 500
 
-int assign_cpu(int t, int core);
 int scheduling(int policy, int N, Process *processes);

@@ -7,5 +7,5 @@ typedef struct Process{
 	pid_t pid;
 }Process;
 
-int exec_process();
+int exec_proc(int exec_time);
 

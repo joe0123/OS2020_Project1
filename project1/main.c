@@ -4,7 +4,6 @@
 #include <assert.h>
 
 
-#include "process.h"
 #include "scheduler.h"
 
 int match_policy(char* policy){
@@ -36,6 +35,6 @@ int main(){
 		procs[i].pid = -1;
 	}
 
-	int k = scheduling(policy, N, procs);
+	scheduling(policy, N, procs);
 
 }

@@ -1,8 +1,11 @@
+#define _GNU_SOURCE
+#include <stdio.h>
+#include <assert.h>
 #include <unistd.h>
 #include <sched.h>
-#include <assert.h>
-#include "scheduler.h"
+#include <sys/wait.h>
 
+#include "scheduler.h"
 
 int assign_cpu(int pid, int core){
 	if (core > sizeof(cpu_set_t))
@@ -68,17 +71,20 @@ int decide_proc(int policy, int N, Process* procs, int last_id, int rr){
 
 
 int scheduling(int policy, int N, Process *procs){
+	printf("Start Scheduling...");
+	fflush(stdout);
 	assert(assign_cpu(getpid(), P_CPU) != -1);
 	assert(wake_up(getpid()) >= 0);
 	
-	int last_id = -1
-	int curr_time = 0
-	int done_count = 0
+	int last_id = -1;
+	int curr_time = 0;
+	int rr = 0;
+	int done_count = 0;
 	while(1){
 	/* Wait for done process */
-		if(last_pid != -1 && procs[last_id].exec_time <= 0){
-			waitpid(procs[last_pid].pid, NULL, 0);	//kill?
-			procs[last_pid].pid = -1;
+		if(last_id != -1 && procs[last_id].exec_time <= 0){
+			waitpid(procs[last_id].pid, NULL, 0);	//kill?
+			procs[last_id].pid = -1;
 			done_count += 1;
 			/* End of scheduling */
 			if(done_count == N)
@@ -94,7 +100,7 @@ int scheduling(int policy, int N, Process *procs){
 			}
 	
 	/* Determine who's next */
-		int curr_id = decide_proc();
+		int curr_id = decide_proc(policy, N, procs, last_id, rr);
 		/* Context Switch */
 		if(curr_id != last_id){
 			if(curr_id != -1 && procs[curr_id].pid != -1)
