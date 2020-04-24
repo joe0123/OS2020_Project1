@@ -1,0 +1,96 @@
+P1 2809
+curr_time = 0
+0 -1 -1 -1 -1 -1 -1 
+P3 2810
+P2 2811
+P4 2812
+P5 2813
+curr_time = 500
+5 0 5 5 5 -1 -1 
+P6 2814
+P7 2815
+curr_time = 1000
+5 5 0 5 5 5 5 
+curr_time = 1500
+5 5 5 0 5 5 5 
+curr_time = 2000
+5 5 5 5 0 5 5 
+curr_time = 2500
+5 5 5 5 5 0 5 
+curr_time = 3000
+5 5 5 5 5 5 0 
+curr_time = 3500
+0 5 5 5 5 5 5 
+curr_time = 4000
+5 0 5 5 5 5 5 
+curr_time = 4500
+5 5 0 5 5 5 5 
+curr_time = 5000
+5 5 5 0 5 5 5 
+Process P4 is done at 5500
+curr_time = 5500
+5 5 5 -1 0 5 5 
+Process P5 is done at 6000
+curr_time = 6000
+5 5 5 -1 -1 0 5 
+Process P6 is done at 6500
+curr_time = 6500
+5 5 5 -1 -1 -1 0 
+curr_time = 7000
+0 5 5 -1 -1 -1 5 
+curr_time = 7500
+5 0 5 -1 -1 -1 5 
+curr_time = 8000
+5 5 0 -1 -1 -1 5 
+curr_time = 8500
+5 5 5 -1 -1 -1 0 
+curr_time = 9000
+0 5 5 -1 -1 -1 5 
+curr_time = 9500
+5 0 5 -1 -1 -1 5 
+curr_time = 10000
+5 5 0 -1 -1 -1 5 
+curr_time = 10500
+5 5 5 -1 -1 -1 0 
+curr_time = 11000
+0 5 5 -1 -1 -1 5 
+curr_time = 11500
+5 0 5 -1 -1 -1 5 
+curr_time = 12000
+5 5 0 -1 -1 -1 5 
+curr_time = 12500
+5 5 5 -1 -1 -1 0 
+curr_time = 13000
+0 5 5 -1 -1 -1 5 
+curr_time = 13500
+5 0 5 -1 -1 -1 5 
+Process P3 is done at 14000
+curr_time = 14000
+5 -1 0 -1 -1 -1 5 
+curr_time = 14500
+5 -1 5 -1 -1 -1 0 
+curr_time = 15000
+0 -1 5 -1 -1 -1 5 
+curr_time = 15500
+5 -1 0 -1 -1 -1 5 
+curr_time = 16000
+5 -1 5 -1 -1 -1 0 
+curr_time = 16500
+0 -1 5 -1 -1 -1 5 
+curr_time = 17000
+5 -1 0 -1 -1 -1 5 
+curr_time = 17500
+5 -1 5 -1 -1 -1 0 
+Process P7 is done at 18000
+curr_time = 18000
+0 -1 5 -1 -1 -1 -1 
+curr_time = 18500
+5 -1 0 -1 -1 -1 -1 
+curr_time = 19000
+0 -1 5 -1 -1 -1 -1 
+curr_time = 19500
+5 -1 0 -1 -1 -1 -1 
+Process P2 is done at 20000
+curr_time = 20000
+0 -1 -1 -1 -1 -1 -1 
+Process P1 is done at 23000

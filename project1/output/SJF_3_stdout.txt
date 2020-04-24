@@ -1,0 +1,32 @@
+P1 3198
+P2 3199
+P3 3200
+curr_time = 100
+0 5 5 -1 -1 -1 -1 -1 
+P4 3201
+P5 3202
+P6 3203
+P7 3204
+P8 3205
+Process P1 is done at 3100
+curr_time = 3100
+-1 5 5 0 5 5 5 5 
+Process P4 is done at 3110
+curr_time = 3110
+-1 5 5 -1 0 5 5 5 
+Process P5 is done at 3120
+curr_time = 3120
+-1 5 5 -1 -1 0 5 5 
+Process P6 is done at 7120
+curr_time = 7120
+-1 5 5 -1 -1 -1 0 5 
+Process P7 is done at 11120
+curr_time = 11120
+-1 0 5 -1 -1 -1 -1 5 
+Process P2 is done at 16120
+curr_time = 16120
+-1 -1 0 -1 -1 -1 -1 5 
+Process P3 is done at 23120
+curr_time = 23120
+-1 -1 -1 -1 -1 -1 -1 0 
+Process P8 is done at 32120

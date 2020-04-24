@@ -1,0 +1,28 @@
+P1 2932
+curr_time = 0
+0 -1 -1 -1 -1 -1 -1 
+P2 2933
+P3 2934
+P4 2935
+P5 2936
+P6 2937
+P7 2938
+Process P1 is done at 8000
+curr_time = 8000
+-1 0 5 5 5 5 5 
+Process P2 is done at 13000
+curr_time = 13000
+-1 -1 0 5 5 5 5 
+Process P3 is done at 16000
+curr_time = 16000
+-1 -1 -1 0 5 5 5 
+Process P4 is done at 17000
+curr_time = 17000
+-1 -1 -1 -1 0 5 5 
+Process P5 is done at 18000
+curr_time = 18000
+-1 -1 -1 -1 -1 0 5 
+Process P6 is done at 19000
+curr_time = 19000
+-1 -1 -1 -1 -1 -1 0 
+Process P7 is done at 23000

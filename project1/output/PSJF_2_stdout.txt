@@ -1,0 +1,24 @@
+P1 3263
+curr_time = 0
+0 -1 -1 -1 -1 
+P2 3264
+curr_time = 1000
+5 0 -1 -1 -1 
+Process P2 is done at 2000
+P3 3265
+curr_time = 2000
+0 -1 5 -1 -1 
+Process P1 is done at 4000
+curr_time = 4000
+-1 -1 0 -1 -1 
+P4 3266
+curr_time = 5000
+-1 -1 5 0 -1 
+Process P4 is done at 7000
+P5 3267
+curr_time = 7000
+-1 -1 5 -1 0 
+Process P5 is done at 8000
+curr_time = 8000
+-1 -1 0 -1 -1 
+Process P3 is done at 11000

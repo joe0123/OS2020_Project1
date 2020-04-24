@@ -35,5 +35,4 @@ int main(){
 	}
 
 	scheduling(policy, N, procs);
-
 }
