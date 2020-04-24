@@ -32,7 +32,7 @@ int main(){
 	for(int i = 0; i < N; i++){
 		scanf("%s%d%d", procs[i].name, &procs[i].ready_time, &procs[i].exec_time);
 		procs[i].pid = -1;
-		procs[i].state = 0;
+		procs[i].ready = 0;
 	}
 
 	scheduling(policy, N, procs);

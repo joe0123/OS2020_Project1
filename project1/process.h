@@ -5,7 +5,7 @@ typedef struct Process{
 	int ready_time;
 	int exec_time;
 	pid_t pid;
-	int state;
+	int ready;
 }Process;
 
 int exec_proc(int exec_time);
