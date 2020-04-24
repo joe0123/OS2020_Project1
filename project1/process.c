@@ -1,3 +1,4 @@
+#include <stdlib.h>
 #include <unistd.h>
 #include <time.h>
 #include <sys/syscall.h>
@@ -7,7 +8,7 @@
 #endif
 
 
-inline int exec_process(exec_time){
+int exec_proc(int exec_time){
 	pid_t pid = fork();
 	if(pid == 0){
 		struct timespec start, end;

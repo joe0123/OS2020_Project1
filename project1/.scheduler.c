@@ -8,13 +8,19 @@
 
 #include "scheduler.h"
 
-int cmp_FIFO_SJF(const void* a, const void* b){
+int cmp_FIFO(const void* a, const void* b){
 	int tmp = ((Process *)a)->ready_time - ((Process *)b)->ready_time;
 	if(tmp == 0)
 		tmp = ((Process *)a)->exec_time - ((Process *)b)->exec_time;
 	return tmp;
 }
 
+int cmp_SJF(const void* a, const void* b){
+	int tmp = ((Process *)a)->exec_time - ((Process *)b)->exec_time;
+	if(tmp == 0)
+		tmp = ((Process *)a)->ready_time - ((Process *)b)->ready_time;
+	return tmp;
+}
 
 int assign_cpu(int pid, int core){
 	if (core > sizeof(cpu_set_t))
@@ -43,60 +49,52 @@ int block_down(int pid){
 }
 
 
-int decide_proc(int policy, int N, Process* procs, int last_id, int* rr){
+int decide_proc(int policy, int N, Process* procs, int last_id, int rr){
 	int curr_id = last_id;
+	if(curr_id != -1 && procs[curr_id].pid == -1)
+		curr_id = -1;
 	
 	switch(policy){
 		case FIFO:
-			if(curr_id == -1 || (curr_id != -1 && procs[curr_id].pid == -1)){
-				int i = curr_id + 1;
-				curr_id = -1;
-				for(; i < N; i++)
+			if(curr_id == -1)
+				for(int i = 0; i < N; i++){
+					//if(procs[i].pid == -1)
+					//	continue;
+					//if(curr_id == -1 || procs[i].ready_time < procs[curr_id].ready_time || (procs[i].ready_time == procs[curr_id].ready_time && procs[i].exec_time < procs[curr_id].exec_time))
 					if(procs[i].pid != -1){
 						curr_id = i;
 						break;
 					}
-			}
+				}
 			break;
 		case RR:
-			if(curr_id == -1 || (curr_id != -1 && procs[curr_id].pid == -1) || *rr == 0){
-				int start_id;
-				if(curr_id == -1 || (curr_id != -1 && procs[curr_id].pid == -1))
-					start_id = 0;
-				else
-					start_id = (curr_id + 1) % N;
-				curr_id = -1;
-				for(int i = 0; i < N; i++){
-					if(procs[(start_id + i) % N].pid != -1){
-						curr_id = (start_id + i) % N;
-						break;
-					}
-				}
-				*rr = TQ;
-			}
-			break;
-		case SJF:
-			if(curr_id == -1 || (curr_id != -1 && procs[curr_id].pid == -1)){
-				curr_id = -1;
+			if(curr_id == -1 || rr == 0)
 				for(int i = 0; i < N; i++){
 					if(procs[i].pid == -1)
 						continue;
-					if(curr_id == -1 || (curr_id != -1 && procs[i].exec_time < procs[curr_id].exec_time))
+					if(curr_id == -1 || procs[i].ready_time < procs[curr_id].ready_time || (procs[i].ready_time == procs[curr_id].ready_time && procs[i].exec_time < procs[curr_id].exec_time))
 						curr_id = i;
 				}
+			break;
+		case SJF:
+			if(curr_id == -1)
+				for(int i = 0; i < N; i++){
+					if(procs[i].pid == -1)
+						continue;
+					if(curr_id == -1 || procs[i].exec_time < procs[curr_id].exec_time || (procs[i].exec_time == procs[curr_id].exec_time && procs[i].ready_time < procs[curr_id].ready_time))
+						curr_id = i;
 			}
 			break;
 		case PSJF:
-			if(curr_id == -1 || (curr_id != -1 && procs[curr_id].pid == -1))
-				curr_id = -1;
 			for(int i = 0; i < N; i++){
 				if(procs[i].pid == -1)
 					continue;
-				if(curr_id == -1 || (curr_id != -1 && procs[i].exec_time < procs[curr_id].exec_time))
+				if(curr_id == -1 || procs[i].exec_time < procs[curr_id].exec_time || (procs[i].exec_time == procs[curr_id].exec_time && procs[i].ready_time < procs[curr_id].ready_time))
 					curr_id = i;
 			}
 			break;
 	}
+
 	return curr_id;
 }
 
@@ -106,21 +104,24 @@ int scheduling(int policy, int N, Process *procs){
 	printf("Start Scheduling...\n");
 	fflush(stdout);
 
-	qsort(procs, N, sizeof(Process), cmp_FIFO_SJF);
+	if(policy == FIFO || policy == RR)
+		qsort(procs, N, sizeof(Process), cmp_FIFO);
+	else if(policy == SJF)
+		qsort(procs, N, sizeof(Process), cmp_SJF);
 
 	assert(assign_cpu(getpid(), P_CPU) != -1);
 	assert(wake_up(getpid()) >= 0);
 	
 	int last_id = -1;
 	int curr_time = 0;
-	int rr = TQ;
+	int rr = 0;
 	int done_count = 0;
 	while(1){
 	/* Wait for done process */
 		if(last_id != -1 && procs[last_id].exec_time <= 0){
 			waitpid(procs[last_id].pid, NULL, 0);	//kill?
 			procs[last_id].pid = -1;
-			printf("Process %s is done before %d\n", procs[last_id].name, curr_time);
+			printf("Process %s is done at %d\n", procs[last_id].name, curr_time);
 			fflush(stdout);
 			done_count += 1;
 			/* End of scheduling */
@@ -137,9 +138,9 @@ int scheduling(int policy, int N, Process *procs){
 				assert(assign_cpu(procs[i].pid, C_CPU) != -1);
 				block_down(procs[i].pid);
 			}
-	//printf("%d\n", rr);
+	
 	/* Determine who's next */
-		int curr_id = decide_proc(policy, N, procs, last_id, &rr);
+		int curr_id = decide_proc(policy, N, procs, last_id, rr);
 		printf("time = %d, curr_proc = %s\n", curr_time, procs[curr_id].name);
 		fflush(stdout);
 		/* Context Switch */
@@ -148,6 +149,7 @@ int scheduling(int policy, int N, Process *procs){
 				wake_up(procs[curr_id].pid);
 			if(last_id != -1 && procs[last_id].pid != -1)
 				block_down(procs[last_id].pid);
+			rr = 0;
 		}
 
 	/* Run time */
@@ -155,7 +157,7 @@ int scheduling(int policy, int N, Process *procs){
 		curr_time += 1;
 		if(curr_id != -1){
 			procs[curr_id].exec_time--;
-			rr--;
+			rr = (rr + 1) % TQ;
 		}
 		last_id = curr_id;
 	}

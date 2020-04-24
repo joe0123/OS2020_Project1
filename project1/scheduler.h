@@ -1,3 +1,5 @@
+#include "process.h"
+
 #define FIFO	0
 #define RR	1
 #define SJF	2
@@ -13,7 +15,6 @@
 #define UNIT_TIME volatile unsigned long i; for(i=0;i<1000000UL;i++)
 #endif
 
-#define TQ 500
+#define TQ 2
 
-int assign_cpu(int t, int core);
 int scheduling(int policy, int N, Process *processes);
