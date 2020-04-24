@@ -3,10 +3,11 @@
 #include <stdlib.h>
 #include <assert.h>
 
-#include "scheduler.h"
-#include "process.h"
 
-inline int match_policy(char* policy){
+#include "process.h"
+#include "scheduler.h"
+
+int match_policy(char* policy){
 	if(strcmp(policy, "FIFO") == 0)
 		return FIFO;
 	else if(strcmp(policy, "RR") == 0)
@@ -25,7 +26,7 @@ int main(){
 	scanf("%s", tmp);
 	int policy = match_policy(tmp);
 	assert(policy != -1);
-
+	
 	int N;
 	scanf("%d", &N);
 	
@@ -35,6 +36,6 @@ int main(){
 		procs[i].pid = -1;
 	}
 
-	scheduling(policy, N, procs);
+	int k = scheduling(policy, N, procs);
 
 }

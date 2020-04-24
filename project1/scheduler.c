@@ -4,7 +4,7 @@
 #include "scheduler.h"
 
 
-inline int assign_cpu(int pid, int core){
+int assign_cpu(int pid, int core){
 	if (core > sizeof(cpu_set_t))
 		return -1;
 
@@ -18,20 +18,20 @@ inline int assign_cpu(int pid, int core){
 	return 0;
 }
 
-inline int wake_up(int pid){
+int wake_up(int pid){
     struct sched_param param;
     param.sched_priority = 0;
     return sched_setscheduler(pid, SCHED_OTHER, &param);	/* SCHED_OTHER: Standard Round-Robin*/
 }
 
-inline int block_down(int pid){
+int block_down(int pid){
     struct sched_param param;
     param.sched_priority = 0;
     return sched_setscheduler(pid, SCHED_IDLE, &param);	/* SCHED_IDLE: with very low priority*/
 }
 
 
-inline int decide_proc(int policy, int N, Process* procs, int last_id, int rr){
+int decide_proc(int policy, int N, Process* procs, int last_id, int rr){
 	int curr_id = last_id;
 	if(curr_id != -1 && procs[curr_id].pid == -1)
 		curr_id = -1;

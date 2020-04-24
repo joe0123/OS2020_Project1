@@ -1,5 +1,3 @@
-#include "process.h"
-
 #define FIFO	0
 #define RR	1
 #define SJF	2
