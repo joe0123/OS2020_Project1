@@ -5,9 +5,9 @@
 #include <unistd.h>
 #include <sched.h>
 #include <sys/wait.h>
+#include <signal.h>
 
 #include "scheduler.h"
-
 
 int cmp_FIFO_SJF(const void* a, const void* b){
 	int tmp = ((Process *)a)->ready_time - ((Process *)b)->ready_time;
@@ -30,16 +30,17 @@ static inline int assign_cpu(int pid, int core){
 	return 0;
 }
 
-static inline int wake_up(int pid){
+static inline int wake_up(int pid, int priority){
     struct sched_param param;
-    param.sched_priority = 0;
-    return sched_setscheduler(pid, SCHED_OTHER, &param);
+    param.sched_priority = priority;
+    return sched_setscheduler(pid, SCHED_FIFO | SCHED_RESET_ON_FORK, &param);
 }
+
 
 static inline int block_down(int pid){
     struct sched_param param;
-    param.sched_priority = 0;
-    return sched_setscheduler(pid, SCHED_IDLE, &param);	/* SCHED_IDLE: with very low priority*/
+    param.sched_priority = 10;
+    return sched_setscheduler(pid, SCHED_FIFO, &param);
 }
 
 
@@ -109,7 +110,16 @@ int scheduling(int policy, int N, Process *procs){
 
 /* Assign scheduler to CPU different from processes */
 	assert(assign_cpu(getpid(), P_CPU) != -1);
-	assert(wake_up(getpid()) >= 0);
+	assert(wake_up(getpid(), 80) >= 0);
+
+/* Set a guard on child_CPU */
+	pid_t guard_pid = fork();
+	assert(guard_pid >= 0);
+	if(guard_pid == 0)
+		while(1);
+	assert(assign_cpu(guard_pid, C_CPU) != -1);
+	assert(wake_up(guard_pid, 50) >= 0);
+
 
 /* Start */
 	int last_id = -1;
@@ -119,11 +129,17 @@ int scheduling(int policy, int N, Process *procs){
 	int done_count = 0;
 	while(1){
 	/* Fork the process who's ready */
-		for(int i = 0; i < N; i++)
+		for(int i = last_id + 1; i < N; i++)
 			if(procs[i].ready_time == curr_time){
 			// Execute Process	
-				procs[i].pid = exec_proc(procs[i].exec_time);
-				assert(procs[i].pid != -1);
+				pid_t pid = fork();
+				assert(pid >= 0);
+				if(pid == 0){
+					char tmp[10];
+					sprintf(tmp, "%d", procs[i].exec_time);
+					assert(execl("./process", tmp, (char*)0) != -1);
+				}
+				procs[i].pid = pid;
 			// Block the process to wait for scheduling
 				assert(block_down(procs[i].pid) >= 0);
 			// Assign process to CPU different from scheduler
@@ -141,9 +157,9 @@ int scheduling(int policy, int N, Process *procs){
 		fflush(stdout);
 #endif
 	/* Context Switch */
-		if(curr_id != -1 && curr_id != last_id){
+		if(curr_id != last_id){
 			if(curr_id != -1 && procs[curr_id].pid != -1)
-				assert(wake_up(procs[curr_id].pid) >= 0);
+				assert(wake_up(procs[curr_id].pid, 80) >= 0);
 			if(last_id != -1 && procs[last_id].pid != -1)
 				assert(block_down(procs[last_id].pid) >= 0);
 #ifdef DEBUG_PRIORITY
@@ -182,5 +198,7 @@ int scheduling(int policy, int N, Process *procs){
 		if(curr_id != -1)
 			last_id = curr_id;
 	}
+	kill(guard_pid, SIGKILL);
+	waitpid(guard_pid, NULL, 0);
+	exit(0);
 }
-
