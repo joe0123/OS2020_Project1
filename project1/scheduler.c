@@ -121,7 +121,7 @@ int scheduling(int policy, int N, Process *procs){
 	/* Fork the process who's ready */
 		for(int i = 0; i < N; i++)
 			if(procs[i].ready_time == curr_time){
-			// Execute Process
+			// Execute Process	
 				procs[i].pid = exec_proc(procs[i].exec_time);
 				assert(procs[i].pid != -1);
 			// Block the process to wait for scheduling
