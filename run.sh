@@ -8,7 +8,7 @@ python3 diff.py $TM
 cat my_output/$TM"_diff.txt"
 
 
-for t in RR SJF PSJF FIFO ; do
+for t in FIFO RR SJF PSJF ; do
 	for i in {1..5} ; do
 		echo $t"_"$i
 		sudo dmesg -C
