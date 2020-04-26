@@ -8,6 +8,7 @@
 #include <signal.h>
 
 #include "scheduler.h"
+#include "process.h"
 
 int cmp_FIFO_SJF(const void* a, const void* b){
 	int tmp = ((Process *)a)->ready_time - ((Process *)b)->ready_time;
@@ -33,14 +34,14 @@ static inline int assign_cpu(int pid, int core){
 static inline int wake_up(int pid, int priority){
     struct sched_param param;
     param.sched_priority = priority;
-    return sched_setscheduler(pid, SCHED_FIFO | SCHED_RESET_ON_FORK, &param);
+    return sched_setscheduler(pid, SCHED_RR | SCHED_RESET_ON_FORK, &param);
 }
 
 
 static inline int block_down(int pid){
     struct sched_param param;
     param.sched_priority = 10;
-    return sched_setscheduler(pid, SCHED_FIFO, &param);
+    return sched_setscheduler(pid, SCHED_RR, &param);
 }
 
 
@@ -103,7 +104,6 @@ static inline int decide_proc(int policy, int N, Process* procs, int last_id, in
 }
 
 
-
 int scheduling(int policy, int N, Process *procs){
 /* Sort the processes, key1=ready_time, key2=exec_time */
 	qsort(procs, N, sizeof(Process), cmp_FIFO_SJF);
@@ -135,9 +135,10 @@ int scheduling(int policy, int N, Process *procs){
 				pid_t pid = fork();
 				assert(pid >= 0);
 				if(pid == 0){
-					char tmp[10];
-					sprintf(tmp, "%d", procs[i].exec_time);
-					assert(execl("./process", tmp, (char*)0) != -1);
+					//char tmp[10];
+					//sprintf(tmp, "%d", procs[i].exec_time);
+					//assert(execl("./process", tmp, (char*)0) != -1);
+					exec_proc(procs[i].exec_time);
 				}
 				procs[i].pid = pid;
 			// Block the process to wait for scheduling

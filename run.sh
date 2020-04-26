@@ -1,7 +1,21 @@
-echo $1
+TM=TIME_MEASUREMENT
+echo $TM
 sudo dmesg -C
-sudo ./scheduler < OS_PJ1_Test/$1.txt > output/$1_stdout.txt 
-sudo dmesg | grep Project1 > output/$1_dmesg.txt
-./calc < OS_PJ1_Test/$1.txt > my_output/$1_theo.txt
-python3 diff.py $1
-cat my_output/$1_diff.txt
+sudo ./scheduler < "OS_PJ1_Test/"$TM".txt" > "output/"$TM"_stdout.txt"
+sudo dmesg | grep Project1 > "output/"$TM"_dmesg.txt"
+./calc < "OS_PJ1_Test/"$TM".txt" > "my_output/"$TM"_theo.txt"
+python3 diff.py $TM
+cat my_output/$TM"_diff.txt"
+
+
+for t in RR SJF PSJF FIFO ; do
+	for i in {1..5} ; do
+		echo $t"_"$i
+		sudo dmesg -C
+		sudo ./scheduler < "OS_PJ1_Test/"$t"_"$i".txt" > "output/"$t"_"$i"_stdout.txt"
+		sudo dmesg | grep Project1 > "output/"$t"_"$i"_dmesg.txt"
+		./calc < "OS_PJ1_Test/"$t"_"$i".txt" > "my_output/"$t"_"$i"_theo.txt"
+		python3 diff.py $t"_"$i
+		cat my_output/$t"_"$i"_diff.txt"
+	done
+done

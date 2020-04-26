@@ -1,9 +1,7 @@
-all: scheduler process calc
+all: scheduler calc
 scheduler:
-	gcc  main.c scheduler.c -o scheduler
-process:
-	gcc  process.c -o process
+	gcc -O2 main.c scheduler.c process.c -o scheduler
 calc:
 	gcc calc.c -o calc
 clean:
-	rm scheduler process calc
+	rm scheduler calc

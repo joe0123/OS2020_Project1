@@ -21,16 +21,16 @@ int match_policy(char* policy){
 
 int main(){
 	char tmp[10];
-	scanf("%s", tmp);
+	assert(scanf("%s", tmp) == 1);
 	int policy = match_policy(tmp);
 	assert(policy != -1);
 	
 	int N;
-	scanf("%d", &N);
+	assert(scanf("%d", &N) == 1);
 	
 	Process *procs = (Process *)malloc(N * sizeof(Process));
 	for(int i = 0; i < N; i++){
-		scanf("%s%d%d", procs[i].name, &procs[i].ready_time, &procs[i].exec_time);
+		assert(scanf("%s%d%d", procs[i].name, &procs[i].ready_time, &procs[i].exec_time) == 3);
 		procs[i].pid = -1;
 		procs[i].ready = 0;
 	}
