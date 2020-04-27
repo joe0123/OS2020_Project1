@@ -36,11 +36,8 @@ int match_policy(char* policy){
 }
 
 
-int cmp_FIFO_SJF(const void* a, const void* b){
-	int tmp = ((Process *)a)->ready_time - ((Process *)b)->ready_time;
-	if(tmp == 0)
-		tmp = ((Process *)a)->exec_time - ((Process *)b)->exec_time;
-	return tmp;
+int cmp_FIFO(const void* a, const void* b){
+	return ((Process *)a)->ready_time - ((Process *)b)->ready_time;
 }
 
 int cmp_end(const void* a, const void* b){
@@ -108,7 +105,7 @@ static inline int decide_proc(int policy, int N, Process* procs, int last_id, in
 
 int scheduling(int policy, int N, Process *procs){
 /* Sort the processes, key1=ready_time, key2=exec_time */
-	qsort(procs, N, sizeof(Process), cmp_FIFO_SJF);
+	qsort(procs, N, sizeof(Process), cmp_FIFO);
 
 /* Start */
 	int last_id = -1;
