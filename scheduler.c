@@ -31,14 +31,14 @@ static inline int assign_cpu(int pid, int core){
 static inline int wake_up(int pid, int priority){
     struct sched_param param;
     param.sched_priority = priority;
-    return sched_setscheduler(pid, SCHED_RR | SCHED_RESET_ON_FORK, &param);
+    return sched_setscheduler(pid, SCHED_FIFO | SCHED_RESET_ON_FORK, &param);
 }
 
 
 static inline int block_down(int pid){
     struct sched_param param;
     param.sched_priority = 10;
-    return sched_setscheduler(pid, SCHED_RR, &param);
+    return sched_setscheduler(pid, SCHED_FIFO, &param);
 }
 
 
@@ -126,17 +126,15 @@ int scheduling(int policy, int N, Process *procs){
 	int done_count = 0;
 	while(1){
 	/* Fork the process who's ready */
-		for(int i = last_id + 1; i < N; i++)
-			if(procs[i].ready_time == curr_time){
+		for(int i = last_id + 1; i < N; i++){
+			if(procs[i].ready_time > curr_time)
+				break;
+			else if(procs[i].ready_time == curr_time){
 			// Execute Process	
 				pid_t pid = fork();
 				assert(pid >= 0);
-				if(pid == 0){
-					//char tmp[10];
-					//sprintf(tmp, "%d", procs[i].exec_time);
-					//assert(execl("./process", tmp, (char*)0) != -1);
+				if(pid == 0)
 					exec_proc(procs[i].exec_time);
-				}
 				procs[i].pid = pid;
 			// Block the process to wait for scheduling
 				assert(block_down(procs[i].pid) >= 0);
@@ -146,6 +144,7 @@ int scheduling(int policy, int N, Process *procs){
 				printf("%s %d\n", procs[i].name, procs[i].pid);
 				fflush(stdout);
 			}
+		}
 	
 	/* Determine who's next */
 		int curr_id = decide_proc(policy, N, procs, last_id, &rr);
