@@ -942,5 +942,6 @@ asmlinkage long sys_statx(int dfd, const char __user *path, unsigned flags,
 			  unsigned mask, struct statx __user *buffer);
 
 asmlinkage int sys_my_printk(const char* message);
+asmlinkage long sys_my_time(void);
 
 #endif

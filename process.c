@@ -1,6 +1,5 @@
 #include <stdlib.h>
 #include <unistd.h>
-#include <time.h>
 #include <sys/syscall.h>
 
 #ifndef UNIT_TIME
@@ -8,12 +7,12 @@
 #endif
 
 void exec_proc(int exec_time){
-	struct timespec start, end;
-        syscall(228, CLOCK_REALTIME, &start);
+        long start_time = syscall(334);
 	for(int j = 0; j < exec_time; j++){
 		UNIT_TIME;
 	}
-        syscall(228, CLOCK_REALTIME, &end);
-       	syscall(333, "[Project1] %d %ld.%.09ld %ld.%.09ld\n", getpid(), start.tv_sec, start.tv_nsec, end.tv_sec, end.tv_nsec);
+        long end_time = syscall(334);
+	static const long BASE = 1000000000;
+       	syscall(333, "[Project1] %d %ld.%.09ld %ld.%.09ld\n", getpid(), start_time / BASE, start_time % BASE, end_time / BASE, end_time % BASE);
 	exit(0);
 }

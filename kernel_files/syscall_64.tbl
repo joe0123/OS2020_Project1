@@ -340,6 +340,7 @@
 331	common	pkey_free		sys_pkey_free
 332	common	statx			sys_statx
 333	common	my_printk		sys_my_printk
+334	common	my_time			sys_my_time
 
 #
 # x32-specific system call numbers start at 512 to avoid cache impact
