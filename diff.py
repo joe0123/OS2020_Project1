@@ -33,7 +33,7 @@ with open("./my_output/{}_theo.txt".format(sys.argv[1]), 'r') as f:
         name_theo.append(tmp[0])
         time_theo.append([float(tmp[1]), float(tmp[2])])
 time_theo = np.array(time_theo) - np.min(time_theo)
-time_diff = np.sum(np.abs(time_real[:, 1] - time_theo[:, 1]))
+time_diff = np.sum(np.abs((time_real[:, 1] - time_real[:, 0]) - (time_theo[:, 1] - time_theo[:, 0])))
 
 
 with open("./my_output/{}_diff.txt".format(sys.argv[1]), 'w') as f:
