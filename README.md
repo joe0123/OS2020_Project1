@@ -1,3 +1,4 @@
+## Usage
 ```
 make
 sudo ./scheduler < test_data
