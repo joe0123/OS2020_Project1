@@ -31,14 +31,14 @@ static inline int assign_cpu(int pid, int core){
 static inline int wake_up(int pid, int priority){
     struct sched_param param;
     param.sched_priority = priority;
-    return sched_setscheduler(pid, SCHED_FIFO | SCHED_RESET_ON_FORK, &param);
+    return sched_setscheduler(pid, SCHED_RR | SCHED_RESET_ON_FORK, &param);
 }
 
 
 static inline int block_down(int pid){
     struct sched_param param;
     param.sched_priority = 10;
-    return sched_setscheduler(pid, SCHED_FIFO, &param);
+    return sched_setscheduler(pid, SCHED_RR, &param);
 }
 
 
