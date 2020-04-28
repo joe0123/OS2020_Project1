@@ -17,7 +17,6 @@ typedef struct Process{
 	int ready_time;
 	int exec_time;
 	pid_t pid;
-	int ready;
 }Process;
 
 int scheduling(int policy, int N, Process *processes);

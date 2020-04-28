@@ -32,7 +32,6 @@ int main(){
 	for(int i = 0; i < N; i++){
 		assert(scanf("%s%d%d", procs[i].name, &procs[i].ready_time, &procs[i].exec_time) == 3);
 		procs[i].pid = -1;
-		procs[i].ready = 0;
 	}
 
 	scheduling(policy, N, procs);
