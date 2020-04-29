@@ -44,7 +44,16 @@ int cmp_end(const void* a, const void* b){
 	return ((Process *)a)->end - ((Process *)b)->end;
 }
 
-static inline int decide_proc(int policy, int N, Process* procs, int last_id, int* rr){
+static inline int swap_queue(int* queue, int queue_num){
+	int tmp[queue_num];
+	for(int i = 0; i < queue_num; i++)
+		tmp[i] = queue[i];
+	queue[queue_num - 1] = queue[0];
+	for(int i = 1; i < queue_num; i++)
+		queue[i - 1] = tmp[i];
+}
+
+static inline int decide_proc(int policy, int N, Process* procs, int last_id, int* rr, int* rr_queue, int rr_num){
 	int curr_id = last_id;	// default: last runner is the next runner
 
 	// (curr_id == -1 || (curr_id != -1 && procs[curr_id].pid == -1)) means our curr_id is now absent.
@@ -63,14 +72,12 @@ static inline int decide_proc(int policy, int N, Process* procs, int last_id, in
 			break;
 		case RR:
 			if(curr_id == -1 || (curr_id != -1 && procs[curr_id].pid == -1) || *rr == 0){
-				int start_id = (curr_id + 1) % N;
-				curr_id = -1;
-				for(int i = 0; i < N; i++){
-					// Find the nearest one in circular array from curr_id 
-					if(procs[(start_id + i) % N].pid != -1){
-						curr_id = (start_id + i) % N;
-						break;
-					}
+				if(rr_num <= 0)
+					curr_id = -1;
+				else{
+					if(curr_id != -1 && procs[curr_id].pid != -1 && *rr == 0)
+						swap_queue(rr_queue, rr_num);
+					curr_id = rr_queue[0];
 				}
 				*rr = TQ;
 			}
@@ -111,15 +118,21 @@ int scheduling(int policy, int N, Process *procs){
 	int last_id = -1;
 	int curr_time = 0;
 	int rr = TQ;
+	int rr_queue[N];
+	int rr_num = 0;
 	int done_count = 0;
 	while(1){
 	/* Fork the process who's ready */
 		for(int i = last_id + 1; i < N; i++)
-			if(procs[i].ready_time == curr_time)
+			if(procs[i].ready_time == curr_time){
 				procs[i].pid = 1;
-	
+				if(policy == RR){
+					rr_queue[rr_num] = i;
+					rr_num++;
+				}
+			}
 	/* Determine who's next */
-		int curr_id = decide_proc(policy, N, procs, last_id, &rr);
+		int curr_id = decide_proc(policy, N, procs, last_id, &rr, rr_queue, rr_num);
 #ifdef DEBUG_CURR
 		printf("time = %d, curr_proc = %s\n", curr_time, procs[curr_id].name);
 		fflush(stdout);
@@ -140,6 +153,10 @@ int scheduling(int policy, int N, Process *procs){
 		if(curr_id != -1 && procs[curr_id].exec_time <= 0){
 			procs[curr_id].pid = -1;
 			procs[curr_id].end = curr_time;
+			if(policy == RR){
+				swap_queue(rr_queue, rr_num);
+				rr_num--;
+			}
 #ifdef DEBUG_DONE
 			printf("Process %s is done at %d\n", procs[curr_id].name, curr_time);
 			fflush(stdout);
